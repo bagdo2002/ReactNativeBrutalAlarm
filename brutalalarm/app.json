@@ -1,0 +1,93 @@
+{
+  "expo": {
+    "name": "brutalalarm",
+    "slug": "brutalalarm",
+    "scheme": "brutalalarm",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/alarmlogo.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/alarmlogo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "deploymentTarget": "18.0",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio",
+          "background-processing",
+          "background-fetch",
+          "remote-notification",
+          "audio",
+          "background-processing",
+          "background-fetch",
+          "remote-notification"
+        ],
+        "NSMicrophoneUsageDescription": "This app needs access to the microphone to record custom alarm sounds.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to import voice memos and audio files for custom alarm sounds.",
+        "NSCriticalAlertStyle": true,
+        "NSUserNotificationsUsageDescription": "This app needs notification permissions to wake you up with alarms even when the phone is locked or in Do Not Disturb mode.",
+        "UIRequiresPersistentWiFi": true,
+        "UISupportedInterfaceOrientations": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortrait"
+        ],
+        "UIStatusBarStyle": "UIStatusBarStyleLightContent",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.bagdo2002.brutalalarm"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/alarmlogo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "RECORD_AUDIO",
+        "WAKE_LOCK",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "READ_EXTERNAL_STORAGE",
+        "FOREGROUND_SERVICE",
+        "SYSTEM_ALERT_WINDOW",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WAKE_LOCK",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.RECEIVE_BOOT_COMPLETED"
+      ],
+      "package": "com.bagdo2002.brutalalarm"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-localization",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/alarmlogo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000000"
+        }
+      ],
+      "expo-audio",
+      "expo-video",
+      "expo-background-fetch",
+      "expo-task-manager"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "92f6e27c-1ded-4a9d-88e7-30a875c39bb2"
+      }
+    }
+  }
+}

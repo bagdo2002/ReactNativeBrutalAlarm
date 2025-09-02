@@ -1,0 +1,150 @@
+{
+  "appTitle": "Alarm",
+  "currentTime": "Current Time",
+  "alarmSetFor": "Alarm set for:",
+  "sound": "Sound:",
+  "wakeUp": "WAKE UP!",
+  "stopAlarm": "STOP ALARM",
+  "alarmSound": "Alarm Sound",
+  "alarmTime": "Alarm Time",
+  "selectSound": "Select Sound",
+  "customSounds": "Custom Voices",
+  "recordVoice": "🎤 Record Voice",
+  "createCustomVoice": "Create Custom Voice",
+
+
+  "setAlarmTime": "Set Alarm Time",
+  "selectTime": "Select Time",
+  "cancelAlarm": "Cancel Alarm",
+  "selectAlarmSound": "Select Alarm Sound",
+  "done": "Done",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "preview": "Preview",
+  "fileNotFound": "Audio file not found",
+  "failedToPlayPreview": "Failed to play preview",
+  "recordCustomAlarm": "Record Custom Alarm",
+  "recordingInstructions": "Record your own voice message for the alarm. Tap the microphone to start recording.",
+  "holdToRecordInstructions": "Hold down the record button to start recording your voice message. Release to stop.",
+  "startRecording": "Start Recording",
+  "stopRecording": "Stop Recording",
+  "holdToRecord": "Hold to Record",
+  "releaseToStop": "Release to Stop",
+  "speakClearlyTip": "Speak clearly into your microphone. Release the button when finished.",
+  "recordingInProgress": "Recording in progress...",
+
+  "nameYourRecording": "Name Your Recording",
+  "namingInstructions": "Give your recording a memorable name so you can easily identify it later.",
+  "enterRecordingName": "Enter recording name...",
+  "saveRecording": "Save Recording",
+  "selectAlarmTimeTitle": "Select Alarm Time",
+  "setAlarm": "Set Alarm",
+  "alarmSet": "Alarm Set",
+  "alarmSetMessage": "Alarm set for {{time}} with \"{{sound}}\"",
+  "alarmCancelled": "Alarm Cancelled",
+  "alarmCancelledMessage": "Your alarm has been cancelled",
+  "permissionRequired": "Permission Required",
+  "microphonePermissionMessage": "Microphone permission is required for recording custom alarms.",
+  "notificationPermissionMessage": "Notification permission is required for alarm alerts.",
+  "nameRequired": "Name Required",
+  "enterNameMessage": "Please enter a name for your recording.",
+  "error": "Error",
+  "noRecordingFound": "No recording found to save.",
+  "success": "Success",
+  "recordingSavedMessage": "\"{{name}}\" has been saved and selected as your alarm sound!",
+  "customVoiceSavedMessage": "\"{{name}}\" has been saved and selected as your custom voice!",
+
+
+  "deleteSound": "Delete Sound",
+  "deleteSoundConfirm": "Are you sure you want to delete this custom sound?",
+  "failedToStartRecording": "Failed to start recording",
+  "failedToStopRecording": "Failed to stop recording",
+  "failedToSaveRecording": "Failed to save recording",
+  "failedToGenerateVoice": "Failed to generate custom voice",
+  "failedToPreviewSound": "Failed to preview sound",
+
+
+  "failedToDeleteSound": "Failed to delete custom sound",
+
+  "alarmTriggered": "Alarm Triggered",
+  "alarmRinging": "Your alarm is ringing!",
+  "snoozeMessage": "Still sleeping? Wake up! ({{count}})",
+  "snooze": "Snooze",
+  "swipeToDismiss": "Swipe to dismiss",
+  "language": "Language",
+  "english": "English",
+  "georgian": "ქართული",
+  "russian": "Русский",
+  "defaultAlarmSounds": {
+    "maleadga": {
+      "name": "Male Adga",
+      "text": "Get up, you lazy, unemployed pathetic fuck, and go to work!"
+    },
+    "trakiawi": {
+      "name": "Trakiawi", 
+      "text": "Wake up, time to stop wasting life!"
+    },
+    "brutal1": {
+      "name": "Brutal Wake-up (Text Only)",
+      "text": "Move your ass, hustle or rot!"
+    }
+  },
+  "customRecordedWakeUpCall": "Custom recorded wake-up call!",
+
+  "customMessage": "Custom Message",
+  "customMessageDescription": "Enter the text you want the AI voice to speak when your alarm goes off.",
+  "enterCustomMessage": "Enter your wake-up message...",
+  "selectVoiceCharacter": "Select Voice Character",
+  "voiceCharacterDescription": "Choose which AI voice character will speak your custom message.",
+  "customVoiceName": "Custom Voice Name",
+  "customVoiceNameDescription": "Give your custom voice a memorable name for easy identification.",
+  "enterCustomVoiceName": "Enter voice name...",
+  "generateCustomVoice": "Generate Custom Voice",
+  "controls": "Controls",
+  "recordCustomSound": "Record Custom Sound",
+  "generatingVoice": "Generating...",
+  "customVoiceTips": "Tips for Custom Voices",
+  "customVoiceTip1": "Keep messages under 30 seconds for best results",
+  "customVoiceTip2": "Use clear, simple language",
+  "customVoiceTip3": "Different voices work better with different tones",
+  "customVoiceTip4": "Test your voice after generating to ensure quality",
+
+
+
+  "splashScreen": {
+    "subtitle": "Wake Up. No Excuses.",
+    "brandText": "Powered by Determination"
+  },
+  "featuresSplashScreen": {
+    "title": "App Features",
+    "subtitle": "Discover what makes this alarm brutal...",
+    "features": {
+      "recordVoice": {
+        "title": "Record Voice",
+        "description": "Record your own brutal wake-up messages"
+      },
+      "aiVoice": {
+        "title": "AI Voice Generation",
+        "description": "Create custom voices with different characters"
+      },
+      "multipleSounds": {
+        "title": "Multiple Alarm Sounds",
+        "description": "Choose from various brutal wake-up sounds"
+      },
+      "smartScheduling": {
+        "title": "Smart Scheduling",
+        "description": "Set precise alarm times that work for you"
+      },
+      "multiLanguage": {
+        "title": "Multi-Language",
+        "description": "Support for English, Georgian, and Russian"
+      },
+      "dailyMotivation": {
+        "title": "Daily Motivation",
+        "description": "Get motivational reminders throughout the day"
+      }
+    },
+    "nextButton": "Next"
+  }
+}
