@@ -161,7 +161,7 @@ function AppContent() {
   const [selectedSoundId, setSelectedSoundId] = useState("trakiawi");
   const [availableSounds, setAvailableSounds] = useState([]);
   // Multi-alarms state
-  const [alarms, setAlarms] = useState([]); // {id, time: Date, enabled: bool, soundId, repeatDays: number[]}
+  const [alarms, setAlarms] = useState([]); // {id, time: Date, enabled: bool, soundId, repeatDays: number[], label?: string}
   const [showSoundSelector, setShowSoundSelector] = useState(false);
   const [showRecordingModal, setShowRecordingModal] = useState(false);
   const [showNamingModal, setShowNamingModal] = useState(false);
@@ -180,6 +180,7 @@ function AppContent() {
   const [showNavySealModal, setShowNavySealModal] = useState(false);
   const [selectedNavySealVoice, setSelectedNavySealVoice] =
     useState("navySeal");
+  const [alarmLabel, setAlarmLabel] = useState("");
 
   // Multiple alarms state and helpers
   const [currentAlarmId, setCurrentAlarmId] = useState(null);
@@ -215,6 +216,13 @@ function AppContent() {
   const scheduleAlarmNotifications = async (alarm) => {
     try {
       const triggerDate = new Date(alarm.time);
+      
+      // Check if the trigger date is in the past
+      if (triggerDate <= new Date()) {
+        console.log("Cannot schedule notification for past time:", triggerDate);
+        return [];
+      }
+      
       const soundObj = availableSounds.find((s) => s.id === alarm.soundId);
       const id = await Notifications.scheduleNotificationAsync({
         content: {
@@ -223,8 +231,13 @@ function AppContent() {
           sound: true,
           priority: Notifications.AndroidNotificationPriority.MAX,
           data: { isAlarm: true, alarmId: alarm.id, alarmSound: soundObj },
+          // Add channelId to content for Android
+          ...(Platform.OS === 'android' && { channelId: "alarm-channel" }),
         },
-        trigger: { type: "date", date: triggerDate, channelId: "alarm-channel" },
+        trigger: { 
+          type: "date", 
+          date: triggerDate,
+        },
       });
       return [id];
     } catch (e) {
@@ -301,6 +314,15 @@ function AppContent() {
     const DAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const sorted = [...repeatDays].sort((a, b) => a - b);
     return sorted.map((d) => DAY_ABBR[d]).join(", ");
+  };
+
+  // Label handlers
+  const handleLabelChange = (text) => {
+    setAlarmLabel(text);
+  };
+
+  const handleRemoveLabel = () => {
+    setAlarmLabel("");
   };
 
   // (Removed older duplicate storage helpers to avoid redeclarations)
@@ -494,8 +516,10 @@ function AppContent() {
           sound: true,
           priority: Notifications.AndroidNotificationPriority.MAX,
           data: { alarmSound: soundObj, isAlarm: true, alarmId: alarm.id },
+          // Add channelId to content for Android
+          ...(Platform.OS === 'android' && { channelId: "alarm-channel" }),
         },
-        trigger: { type: "date", date: triggerDate, channelId: "alarm-channel" },
+        trigger: { type: "date", date: triggerDate },
       });
     } catch (e) {
       console.log("Failed to schedule alarm", alarm?.id, e);
@@ -678,8 +702,6 @@ function AppContent() {
           staysActiveInBackground: true,
           shouldDuckAndroid: false,
           playThroughEarpieceAndroid: false,
-          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
           shouldCorrectPitch: false,
         }).catch((error) => {
           console.error("Error setting audio mode for background:", error);
@@ -698,90 +720,68 @@ function AppContent() {
       async (notification) => {
         console.log("Notification received:", notification);
 
-        // Check if this is an alarm notification
         const isAlarm = notification.request.content.data?.isAlarm;
-
         if (isAlarm) {
-          console.log("Alarm notification received, showing popup");
-
-          // Get the alarm sound data
-          const alarmSoundData =
-            notification.request.content.data?.alarmSound || selectedSound;
-          const notifiedAlarmId = notification.request.content.data?.alarmId || null;
+          console.log("Alarm notification received - triggering alarm popup");
+          
+          const alarmSoundData = notification.request.content.data?.alarmSound || selectedSound;
+          const notifiedAlarmId = notification.request.content.data?.alarmId;
+          
           if (notifiedAlarmId) setCurrentAlarmId(notifiedAlarmId);
 
-          // Show the alarm popup
+          // This is the key fix - directly trigger the alarm UI
           setCurrentAlarmSound(alarmSoundData);
           setShowAlarmPopup(true);
           setIsAlarmPlaying(true);
 
-          // Try to play audio for both platforms when notification is received
-          if (alarmSoundData) {
-            try {
-              console.log("Attempting to play alarm audio from notification");
-              await playAlarmInBackground(alarmSoundData);
-            } catch (audioError) {
-              console.error(
-                "Error playing alarm audio from notification:",
-                audioError
-              );
-            }
+          // Play audio using the alarm logic's trigger function
+          if (alarmLogic.triggerAlarm && alarmSoundData) {
+            await alarmLogic.triggerAlarm(alarmSoundData, handleAlarmTriggered);
           }
         }
       }
     );
 
-    const responseListener =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log("Notification response received:", response);
+    const responseListener = Notifications.addNotificationResponseReceivedListener(
+      async (response) => {
+        console.log("Notification action received:", response.actionIdentifier);
 
-        // Handle alarm notification responses
         const isAlarm = response.notification.request.content.data?.isAlarm;
-        const actionIdentifier = response.actionIdentifier;
+        if (!isAlarm) return;
 
-        if (isAlarm) {
-          console.log("Alarm notification response:", actionIdentifier);
-
-          if (actionIdentifier === "snooze") {
-            handleAlarmSnooze();
-          } else if (actionIdentifier === "stop") {
-            handleAlarmStop();
-          } else {
-            // Default action - show alarm popup
-            const alarmSoundData =
-              response.notification.request.content.data?.alarmSound ||
-              selectedSound;
-            const notifiedAlarmId = response.notification.request.content.data?.alarmId || null;
+        // Handle specific actions
+        switch (response.actionIdentifier) {
+          case 'stop':
+            await handleAlarmStop();
+            break;
+          case 'snooze':
+            await handleAlarmSnooze();
+            break;
+          default:
+            // User tapped the notification - show alarm popup
+            const alarmSoundData = response.notification.request.content.data?.alarmSound || selectedSound;
+            const notifiedAlarmId = response.notification.request.content.data?.alarmId;
+            
             if (notifiedAlarmId) setCurrentAlarmId(notifiedAlarmId);
+            
             setCurrentAlarmSound(alarmSoundData);
             setShowAlarmPopup(true);
             setIsAlarmPlaying(true);
 
-            // Try to play audio when user taps notification
-            if (alarmSoundData) {
-              try {
-                console.log(
-                  "Attempting to play alarm audio from notification tap"
-                );
-                playAlarmInBackground(alarmSoundData);
-              } catch (audioError) {
-                console.error(
-                  "Error playing alarm audio from notification tap:",
-                  audioError
-                );
-              }
+            if (alarmLogic.triggerAlarm && alarmSoundData) {
+              await alarmLogic.triggerAlarm(alarmSoundData, handleAlarmTriggered);
             }
-          }
+            break;
         }
-      });
+      }
+    );
 
     return () => {
       subscription?.remove();
       notificationListener?.remove?.();
       responseListener?.remove?.();
     };
-  }, [selectedSound, t, alarmLogic.isAlarmPlaying]);
-
+  }, [selectedSound, alarmLogic, handleAlarmTriggered]);
   /**
    * Play alarm sound in background when notification is received
    */
@@ -808,27 +808,13 @@ function AppContent() {
       // Configure audio for background playback using our audio manager
       await audioManager.setupBackgroundAlarmAudio();
 
-      // Enhanced audio creation with better error handling
+      // Simplified audio creation for better compatibility
       const { sound: newSound } = await Audio.Sound.createAsync(
         soundObject.path,
         {
           shouldPlay: false, // Don't auto-play, we'll control it manually
           isLooping: !soundObject.isCustom, // Loop built-in sounds, not custom recordings
           volume: 1.0,
-          // Additional settings for better compatibility
-          progressUpdateIntervalMillis: 100,
-          positionMillis: 0,
-          rate: 1.0,
-          shouldCorrectPitch: false,
-          // Enable audio session to stay active
-          staysActiveInBackground: true,
-        },
-        (status) => {
-          // Status callback for debugging
-          console.log("Background audio status update:", status);
-          if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
-            console.log("Background audio finished playing");
-          }
         }
       );
 
@@ -1100,11 +1086,12 @@ function AppContent() {
             isAlarm: true,
             isSnooze: true,
           },
+          // Add channelId to content for Android
+          ...(Platform.OS === 'android' && { channelId: "alarm-channel" }),
         },
         trigger: {
           type: "date",
           date: snoozeTime,
-          channelId: "alarm-channel",
         },
       });
 
@@ -1281,6 +1268,7 @@ function AppContent() {
               // reset selectors to defaults when adding new
               setSelectedSoundId("trakiawi");
               setRepeatDays([]);
+              setAlarmLabel("");
               setShowControlsBottomSheet(true);
             }}
           >
@@ -1296,15 +1284,14 @@ function AppContent() {
         bounces={true}
       >
         <View style={styles.mainContent}>
-          {/* Alarm Status
-          <AlarmStatus
-            isAlarmSet={alarmLogic.isAlarmSet}
-            isAlarmPlaying={alarmLogic.isAlarmPlaying}
-            alarmTime={alarmLogic.alarmTime}
-            currentAlarmSound={alarmLogic.currentAlarmSound}
-            selectedSound={selectedSound}
-            onStopAlarm={alarmLogic.stopAlarm}
-          /> */}
+          {/* Simple Debug Info */}
+          <View style={styles.debugPanel}>
+            <Text style={styles.debugTitle}>🔍 Alarm Status</Text>
+            <Text style={styles.debugText}>Alarm Set: {alarmLogic.isAlarmSet ? "✅ Yes" : "❌ No"}</Text>
+            <Text style={styles.debugText}>Alarm Playing: {alarmLogic.isAlarmPlaying ? "🔊 Yes" : "🔇 No"}</Text>
+            <Text style={styles.debugText}>Current Time: {new Date().toLocaleTimeString()}</Text>
+            <Text style={styles.debugText}>Selected Sound: {selectedSound?.name || "None"}</Text>
+          </View>
 
           {alarms.map((a) => (
             <AlarmListItem
@@ -1319,12 +1306,14 @@ function AppContent() {
               soundName={
                 (availableSounds.find((s) => s.id === a.soundId) || selectedSound)?.name
               }
+              label={a.label}
               onPress={() => {
                 setEditingAlarm(a);
                 // Prefill controls
                 alarmLogic.setAlarmTime(new Date(a.time));
                 setSelectedSoundId(a.soundId);
                 setRepeatDays(a.repeatDays || []);
+                setAlarmLabel(a.label || "");
                 setShowControlsBottomSheet(true);
               }}
             />
@@ -1337,6 +1326,7 @@ function AppContent() {
       <ControlsBottomSheet
         visible={showControlsBottomSheet}
         onClose={() => setShowControlsBottomSheet(false)}
+        onTestAlarm={handleTestAlarm}
         onSave={async () => {
           const alarmToSave = {
             id: editingAlarm ? editingAlarm.id : String(Date.now()),
@@ -1344,10 +1334,12 @@ function AppContent() {
             enabled: editingAlarm ? editingAlarm.enabled : true,
             soundId: selectedSoundId,
             repeatDays: [...repeatDays],
+            label: alarmLabel.trim() || undefined,
           };
           await upsertAlarm(alarmToSave);
           setShowControlsBottomSheet(false);
           setEditingAlarm(null);
+          setAlarmLabel(""); // Reset label after saving
           await rescheduleAllEnabledAlarms();
         }}
         onDelete={editingAlarm ? async () => {
@@ -1386,6 +1378,10 @@ function AppContent() {
         repeatSummary={getRepeatSummary()}
         repeatDays={repeatDays}
         onToggleRepeatDay={toggleRepeatDay}
+        // Label props
+        alarmLabel={alarmLabel}
+        onLabelChange={handleLabelChange}
+        onRemoveLabel={handleRemoveLabel}
         // Recording modal props
         showRecordingModal={showRecordingModal}
         showNamingModal={showNamingModal}
@@ -1472,7 +1468,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     backgroundColor: "#ffffff",
     borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    borderBottomColor: "white",
     zIndex: 1000,
   },
   scrollContainer: {
@@ -1483,7 +1479,7 @@ const styles = StyleSheet.create({
   },
   mainContent: {
     padding: 0,
-    minHeight: "100%",
+    flexGrow: 1,
     justifyContent: "flex-start",
   },
   header: {
@@ -1522,7 +1518,8 @@ const styles = StyleSheet.create({
   }, 
   createalarmbuttontext: {
     ...TEXT_STYLES.buttonTextLarge,
-    fontSize:'35'
+    fontSize:'35',
+    fontWeight:'30'
   },
   controlsContainer: {
     width: "100%",
@@ -1540,5 +1537,24 @@ const styles = StyleSheet.create({
   openControlsButtonText: {
     ...TEXT_STYLES.buttonTextLarge,
     color: "#000000",
+  },
+  debugPanel: {
+    backgroundColor: "#f0f0f0",
+    padding: 15,
+    margin: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  debugTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
+  },
+  debugText: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 2,
   },
 });

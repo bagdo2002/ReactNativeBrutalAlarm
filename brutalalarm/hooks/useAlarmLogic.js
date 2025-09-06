@@ -67,14 +67,55 @@ const useAlarmLogic = () => {
   /**
    * Monitors for alarm trigger conditions
    * Checks every second if current time matches alarm time
-   * NOTE: This automatic triggering is disabled for multi-alarm system
-   * Alarms are now managed by the notification system in App.js
+   * Re-enabled for reliable alarm triggering
    */
   useEffect(() => {
-    // Disable automatic alarm triggering for multi-alarm system
-    // Alarms are now managed by notifications and the multi-alarm system
+    if (isAlarmSet && !isAlarmPlaying) {
+      console.log("Setting up alarm monitoring for:", alarmTime);
+      console.log("Alarm time type:", typeof alarmTime);
+      console.log("Alarm time value:", alarmTime);
+      console.log("Stored alarm sound:", storedAlarmSound?.name);
+      
+      // Validate alarmTime
+      if (!alarmTime || !(alarmTime instanceof Date) || isNaN(alarmTime.getTime())) {
+        console.error("❌ Invalid alarm time detected:", alarmTime);
+        console.log("❌ Resetting alarm time to current time + 1 minute");
+        const fallbackTime = new Date();
+        fallbackTime.setMinutes(fallbackTime.getMinutes() + 1);
+        setAlarmTime(fallbackTime);
+        return;
+      }
+      
+      intervalRef.current = setInterval(() => {
+        const now = new Date();
+        const alarmTimeDate = new Date(alarmTime);
+        
+        // Validate alarm time again inside the interval
+        if (isNaN(alarmTimeDate.getTime())) {
+          console.error("❌ Invalid alarm time in interval:", alarmTime);
+          return;
+        }
+        
+        // Debug logging every 10 seconds
+        if (now.getSeconds() % 10 === 0) {
+          console.log("Alarm check - Current:", now.toLocaleTimeString(), "Target:", alarmTimeDate.toLocaleTimeString());
+        }
+        
+        // Check if current time matches alarm time (within 1 minute tolerance)
+        const timeDiff = Math.abs(now.getTime() - alarmTimeDate.getTime());
+        if (timeDiff < 60000) { // 1 minute tolerance
+          console.log("🚨 ALARM TIME REACHED! Triggering alarm...");
+          console.log("Time difference:", timeDiff, "ms");
+          triggerAlarm(storedAlarmSound, alarmTriggerCallbackRef.current);
+        }
+      }, 1000);
+    } else {
+      console.log("Alarm monitoring disabled - isAlarmSet:", isAlarmSet, "isAlarmPlaying:", isAlarmPlaying);
+    }
+
     return () => {
       if (intervalRef.current) {
+        console.log("Clearing alarm monitoring interval");
         clearInterval(intervalRef.current);
       }
     };
@@ -86,7 +127,9 @@ const useAlarmLogic = () => {
    */
   const triggerAlarm = async (selectedSound, onAlarmTriggered) => {
     try {
-      console.log("Triggering alarm with sound:", selectedSound);
+      console.log("🚨 TRIGGER ALARM: Starting alarm trigger!");
+      console.log("🚨 TRIGGER ALARM: Sound:", selectedSound?.name);
+      console.log("🚨 TRIGGER ALARM: Callback provided:", !!onAlarmTriggered);
       
       // Ensure we have a valid sound object
       if (!selectedSound) {
@@ -122,9 +165,6 @@ const useAlarmLogic = () => {
             staysActiveInBackground: true,
             shouldDuckAndroid: false,
             playThroughEarpieceAndroid: false,
-            // Additional settings for better background audio
-            interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-            interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
             // Enable audio session to stay active
             shouldCorrectPitch: false,
           });
@@ -164,27 +204,13 @@ const useAlarmLogic = () => {
           console.log("Audio source type:", typeof audioSource);
           console.log("Is custom recording:", selectedSound.isCustom);
           
-          // Enhanced audio creation with better error handling
+          // Simplified audio creation for better compatibility
           const { sound: newSound } = await Audio.Sound.createAsync(
             audioSource,
             {
               shouldPlay: false, // Don't auto-play, we'll control it manually
               isLooping: selectedSound.isCustom ? false : true, // Don't loop custom recordings
               volume: 1.0,
-              // Additional settings for better compatibility
-              progressUpdateIntervalMillis: 100,
-              positionMillis: 0,
-              rate: 1.0,
-              shouldCorrectPitch: false,
-              // Enable audio session to stay active
-              staysActiveInBackground: true,
-            },
-            (status) => {
-              // Status callback for debugging
-              console.log("Audio status update:", status);
-              if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
-                console.log("Audio finished playing");
-              }
             }
           );
           console.log("Audio sound object created successfully for:", selectedSound.isCustom ? "custom recording" : "built-in sound");
@@ -396,42 +422,58 @@ const useAlarmLogic = () => {
    */
   const setAlarm = async (selectedSound, onAlarmTriggered) => {
     try {
-      console.log("Setting alarm for:", alarmTime, "with sound:", selectedSound?.name);
+      console.log("🔔 ALARM LOGIC: Setting alarm for:", alarmTime, "with sound:", selectedSound?.name);
 
       // Store the callback for when alarm triggers
       if (onAlarmTriggered) {
+        console.log("🔔 ALARM LOGIC: Storing alarm trigger callback");
         // Store the callback in a ref or state for later use
         alarmTriggerCallbackRef.current = onAlarmTriggered;
       }
 
       // Calculate the trigger time
       const now = new Date();
-      const triggerDate = new Date(alarmTime);
+      let triggerDate;
+      
+      // Validate and fix alarmTime if needed
+      if (!alarmTime || !(alarmTime instanceof Date) || isNaN(alarmTime.getTime())) {
+        console.log("🔔 ALARM LOGIC: Invalid alarm time, using current time + 1 minute");
+        triggerDate = new Date();
+        triggerDate.setMinutes(triggerDate.getMinutes() + 1);
+        setAlarmTime(triggerDate); // Update the state with valid time
+      } else {
+        triggerDate = new Date(alarmTime);
+      }
+      
+      console.log("🔔 ALARM LOGIC: Current time:", now.toLocaleTimeString());
+      console.log("🔔 ALARM LOGIC: Alarm time:", triggerDate.toLocaleTimeString());
       
       // If the alarm time has already passed today, set it for tomorrow
       if (triggerDate <= now) {
+        console.log("🔔 ALARM LOGIC: Alarm time is in the past, setting for tomorrow");
         triggerDate.setDate(triggerDate.getDate() + 1);
       }
 
-      console.log("Alarm will trigger at:", triggerDate);
+      console.log("🔔 ALARM LOGIC: Final trigger time:", triggerDate.toLocaleTimeString());
 
       // Set up the interval to check for alarm trigger
-      // NOTE: Disabled for multi-alarm system - alarms are managed by notifications
       if (intervalRef.current) {
+        console.log("🔔 ALARM LOGIC: Clearing existing interval");
         clearInterval(intervalRef.current);
       }
 
-      // Interval checking is disabled - alarms are managed by the notification system
-      // This prevents conflicts with the multi-alarm system in App.js
-
+      console.log("🔔 ALARM LOGIC: Setting alarm state...");
       setIsAlarmSet(true);
       setStoredAlarmSound(selectedSound);
+      console.log("🔔 ALARM LOGIC: Alarm state set - isAlarmSet: true, storedSound:", selectedSound?.name);
 
       // Schedule notification as backup
+      console.log("🔔 ALARM LOGIC: Scheduling notification...");
       await scheduleNotification(triggerDate, selectedSound);
+      console.log("🔔 ALARM LOGIC: Notification scheduled successfully");
 
     } catch (error) {
-      console.error("Error setting alarm:", error);
+      console.error("🔔 ALARM LOGIC: Error setting alarm:", error);
       throw error;
     }
   };

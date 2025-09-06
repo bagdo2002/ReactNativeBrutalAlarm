@@ -87,7 +87,8 @@
     "extra": {
       "eas": {
         "projectId": "92f6e27c-1ded-4a9d-88e7-30a875c39bb2"
-      }
+      },
+      "elevenLabsApiKey": "sk_6019ebf209029252903f32a7d07a4eac0fbcc173e9336db5"
     }
   }
 }

@@ -65,6 +65,9 @@
   "alarmRinging": "თქვენი საათი ზარის!",
   "snoozeMessage": "კვლავ სძინავთ? გაიღვიძეთ! ({{count}})",
   "snooze": "გადადება",
+  "snoozeAlarm": "განგაშის გადადება",
+  "alarmSnoozed": "განგაში გადაიდო",
+  "alarmSnoozedMessage": "თქვენი განგაში 5 წუთით გადაიდო",
   "stopAlarm": "გაჩერება",
   "swipeToDismiss": "გასათავისუფლებლად გადაიტანეთ",
   "language": "ენა",
@@ -111,7 +114,10 @@
   "failedToGenerateVoice": "მორგებული ხმის გენერირება ვერ მოხერხდა",
   "failedToPreviewSound": "ხმის წინასწარი მოსმენა ვერ მოხერხდა",
   "customVoiceSavedMessage": "\"{{name}}\" შენახულია და არჩეულია როგორც თქვენი მორგებული ხმა!",
-
+  "selectedVoice": "არჩეული ხმა",
+  "searchVoices": "ხმების ძებნა...",
+  "noVoicesFound": "ხმები ვერ მოიძებნა",
+  "tryDifferentSearch": "სცადეთ სხვა ძებნის ტერმინი",
 
   "splashScreen": {
     "subtitle": "გაიღვიძე. მიზეზები არ არსებობს.",
@@ -147,5 +153,21 @@
       }
     },
     "nextButton": "შემდეგი"
+  },
+  "splashScreens": {
+    "screen1": {
+      "title": "გაიღვიძე ძლიერი ზემოქმედებით",
+      "nextButton": "შემდეგი"
+    },
+    "screen2": {
+      "title": "AI ხმოვანი შეხსენებები",
+      "description": "მიიღეთ პერსონალიზებული გამღვიძებელი შეტყობინებები AI პერსონაჟებისგან",
+      "nextButton": "შემდეგი"
+    },
+    "screen3": {
+      "title": "ჩაიწერეთ თქვენი ხმა",
+      "description": "შექმენით მორგებული გამღვიძებელი შეტყობინებები თქვენი ხმით",
+      "nextButton": "დაწყება"
+    }
   }
 }

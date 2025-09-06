@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { VOICES } from "../elevenlabs";
+import VoiceList from "./VoiceList";
 
 /**
  * CustomVoiceModal Component
@@ -42,32 +43,7 @@ const CustomVoiceModal = ({
   const [customText, setCustomText] = useState("");
   const [selectedVoice, setSelectedVoice] = useState("navySeal");
   const [voiceName, setVoiceName] = useState("");
-
-  // Voice options with display names
-  const voiceOptions = [
-    {
-      id: "navySeal",
-      name: "Navy SEAL",
-      description: "Deep, commanding voice",
-    },
-    {
-      id: "yogaInstructor",
-      name: "Yoga Instructor",
-      description: "Calm, soothing voice",
-    },
-    {
-      id: "drillSergeant",
-      name: "Drill Sergeant",
-      description: "Intense, aggressive voice",
-    },
-    {
-      id: "motivationalCoach",
-      name: "Motivational Coach",
-      description: "Energetic, inspiring voice",
-    },
-    { id: "gentle", name: "Gentle", description: "Soft, gentle voice" },
-    { id: "energetic", name: "Energetic", description: "High energy voice" },
-  ];
+  const [showVoiceList, setShowVoiceList] = useState(false);
 
   const handleGenerate = () => {
     if (!customText.trim()) {
@@ -84,7 +60,25 @@ const CustomVoiceModal = ({
     setCustomText("");
     setVoiceName("");
     setSelectedVoice("navySeal");
+    setShowVoiceList(false);
     onClose();
+  };
+
+  const handleVoiceSelect = (voiceId) => {
+    setSelectedVoice(voiceId);
+  };
+
+  const getSelectedVoiceName = () => {
+    const voiceOptions = [
+      { id: "navySeal", name: "Navy SEAL" },
+      { id: "yogaInstructor", name: "Yoga Instructor" },
+      { id: "drillSergeant", name: "Drill Sergeant" },
+      { id: "motivationalCoach", name: "Motivational Coach" },
+      { id: "gentle", name: "Gentle" },
+      { id: "energetic", name: "Energetic" },
+    ];
+    const selected = voiceOptions.find((voice) => voice.id === selectedVoice);
+    return selected ? selected.name : "Navy SEAL";
   };
 
   const isFormValid =
@@ -106,7 +100,7 @@ const CustomVoiceModal = ({
             accessibilityRole="button"
           >
             <Text style={styles.closeButtonText}>{t("cancel")}</Text>
-          </TouchableOpacity>{" "}
+          </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.modalContent}>
@@ -130,38 +124,25 @@ const CustomVoiceModal = ({
             />
             <Text style={styles.characterCount}>{customText.length}/500</Text>
           </View>
-
-          {/* Voice Selection Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t("selectVoiceCharacter")}</Text>
             <Text style={styles.sectionDescription}>
               {t("voiceCharacterDescription")}
             </Text>
-            {voiceOptions.map((voice) => (
-              <TouchableOpacity
-                key={voice.id}
-                style={[
-                  styles.voiceOption,
-                  selectedVoice === voice.id && styles.voiceOptionSelected,
-                ]}
-                onPress={() => setSelectedVoice(voice.id)}
-                accessibilityLabel={`${voice.name} - ${voice.description}`}
-                accessibilityRole="radio"
-                accessibilityState={{ checked: selectedVoice === voice.id }}
-              >
-                <View style={styles.voiceOptionContent}>
-                  <Text style={styles.voiceOptionName}>{voice.name}</Text>
-                  <Text style={styles.voiceOptionDescription}>
-                    {voice.description}
-                  </Text>
-                </View>
-                {selectedVoice === voice.id && (
-                  <Text style={styles.selectedIndicator}>✓</Text>
-                )}
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity
+              style={styles.voiceSelectionButton}
+              onPress={() => setShowVoiceList(true)}
+              accessibilityLabel={t("selectVoiceCharacter")}
+              accessibilityRole="button"
+            >
+              <View style={styles.voiceSelectionContent}>
+                <Text style={styles.voiceSelectionLabel}>
+                  {t("selectedVoice")}: {getSelectedVoiceName()}
+                </Text>
+                <Text style={styles.voiceSelectionArrow}>›</Text>
+              </View>
+            </TouchableOpacity>
           </View>
-
           {/* Name Input Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t("customVoiceName")}</Text>
@@ -179,6 +160,13 @@ const CustomVoiceModal = ({
               accessibilityLabel={t("enterCustomVoiceName")}
             />
           </View>
+          {/* Voice List Modal */}
+          <VoiceList
+            visible={showVoiceList}
+            onClose={() => setShowVoiceList(false)}
+            selectedVoice={selectedVoice}
+            onSelectVoice={handleVoiceSelect}
+          />
 
           {/* Generate Button */}
           <View style={styles.generateSection}>
@@ -206,6 +194,8 @@ const CustomVoiceModal = ({
               )}
             </TouchableOpacity>
           </View>
+
+          {/* Voice Selection Section */}
         </ScrollView>
       </SafeAreaView>
     </Modal>
@@ -273,40 +263,6 @@ const styles = StyleSheet.create({
     textAlign: "right",
     marginTop: 5,
   },
-  voiceOption: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 10,
-    backgroundColor: "#f5f5f5",
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
-  },
-  voiceOptionSelected: {
-    backgroundColor: "#e8e8e8",
-    borderColor: "#666666",
-  },
-  voiceOptionContent: {
-    flex: 1,
-  },
-  voiceOptionName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000000",
-    marginBottom: 2,
-  },
-  voiceOptionDescription: {
-    fontSize: 14,
-    color: "#666666",
-  },
-  selectedIndicator: {
-    fontSize: 18,
-    color: "#666666",
-    fontWeight: "700",
-    marginLeft: 10,
-  },
   nameInput: {
     backgroundColor: "#f5f5f5",
     borderWidth: 1,
@@ -337,6 +293,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+  },
+  voiceSelectionButton: {
+    backgroundColor: "#f5f5f5",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRadius: 12,
+    padding: 15,
+  },
+  voiceSelectionContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  voiceSelectionLabel: {
+    fontSize: 16,
+    color: "#000000",
+    fontWeight: "500",
+  },
+  voiceSelectionArrow: {
+    fontSize: 20,
+    color: "#666666",
+    fontWeight: "300",
   },
   tipsSection: {
     backgroundColor: "#f8f9fa",

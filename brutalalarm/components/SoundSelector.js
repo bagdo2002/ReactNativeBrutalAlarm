@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   previewButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "whtie",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,

@@ -47,6 +47,8 @@
   "permissionRequired": "Permission Required",
   "microphonePermissionMessage": "Microphone permission is required for recording custom alarms.",
   "notificationPermissionMessage": "Notification permission is required for alarm alerts.",
+  "alarmLabel": "Label",
+  "removeLabel": "Remove label",
   "nameRequired": "Name Required",
   "enterNameMessage": "Please enter a name for your recording.",
   "error": "Error",
@@ -71,6 +73,9 @@
   "alarmRinging": "Your alarm is ringing!",
   "snoozeMessage": "Still sleeping? Wake up! ({{count}})",
   "snooze": "Snooze",
+  "snoozeAlarm": "Snooze Alarm",
+  "alarmSnoozed": "Alarm Snoozed",
+  "alarmSnoozedMessage": "Your alarm has been snoozed for 5 minutes",
   "swipeToDismiss": "Swipe to dismiss",
   "language": "Language",
   "english": "English",
@@ -109,8 +114,14 @@
   "customVoiceTip2": "Use clear, simple language",
   "customVoiceTip3": "Different voices work better with different tones",
   "customVoiceTip4": "Test your voice after generating to ensure quality",
-
-
+  "Play preview": "Play preview",
+  "Play": "Play",
+  "Title": "Title",
+  "New Recording": "New Recording",
+  "selectedVoice": "Selected Voice",
+  "searchVoices": "Search voices...",
+  "noVoicesFound": "No voices found",
+  "tryDifferentSearch": "Try a different search term",
 
   "splashScreen": {
     "subtitle": "Wake Up. No Excuses.",
@@ -146,5 +157,21 @@
       }
     },
     "nextButton": "Next"
+  },
+  "splashScreens": {
+    "screen1": {
+      "title": "Wake Up with a Kick",
+      "nextButton": "Next"
+    },
+    "screen2": {
+      "title": "AI Voice Reminders",
+      "description": "Get personalized wake-up messages from AI characters",
+      "nextButton": "Next"
+    },
+    "screen3": {
+      "title": "Record Your Voice",
+      "description": "Create custom wake-up messages with your own voice",
+      "nextButton": "Get Started"
+    }
   }
 }

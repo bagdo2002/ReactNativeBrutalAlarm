@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Dimensions,
   Platform,
+  TextInput,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { TEXT_STYLES } from "./FontSystem";
@@ -26,17 +27,12 @@ const ControlsBottomSheet = ({
   onClose,
   onSave,
   onDelete,
-  // Time picker props
-  showTimePicker,
+  onTestAlarm,
+
   alarmTime,
-  isAlarmSet,
-  isAlarmPlaying,
-  onOpenTimePicker,
+
   onTimeChange,
-  onSetAlarm,
-  onCancelAlarm,
-  onCloseTimePicker,
-  // Sound selector props
+
   showSoundSelector,
   selectedSound,
   availableSounds,
@@ -47,11 +43,12 @@ const ControlsBottomSheet = ({
   onOpenSoundSelector,
   onPreviewSound,
   previewingSoundId,
-  // Repeat props
   repeatSummary,
   repeatDays,
   onToggleRepeatDay,
-  // Recording modal props
+  alarmLabel,
+  onLabelChange,
+  onRemoveLabel,
   showRecordingModal,
   showNamingModal,
   isRecording,
@@ -66,7 +63,6 @@ const ControlsBottomSheet = ({
   onSaveRecording,
   onCancelNaming,
   onOpenCustomVoiceModal,
-  // Custom voice modal props
   showCustomVoiceModal,
   onCloseCustomVoiceModal,
   onGenerateVoice,
@@ -108,6 +104,14 @@ const ControlsBottomSheet = ({
               <Text style={styles.cancelButtonText}>{t("cancel")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              style={styles.testButton}
+              onPress={onTestAlarm}
+              accessibilityLabel="Test Alarm"
+              accessibilityRole="button"
+            >
+              <Text style={styles.testButtonText}>🚨 Test</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               style={styles.saveButton}
               onPress={onSave || onClose}
               accessibilityLabel={t("save")}
@@ -142,6 +146,35 @@ const ControlsBottomSheet = ({
             />
           </View>
 
+          {/* Label Section */}
+          <View style={styles.section}>
+            <View style={styles.controlButton}>
+              <View style={styles.controlButtonTextContainer}>
+                <Text style={styles.controlButtonSubtitle}>Label</Text>
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <TextInput
+                  style={styles.labelInputInline}
+                  placeholder="Label"
+                  value={alarmLabel || ""}
+                  onChangeText={onLabelChange}
+                  maxLength={50}
+                  accessibilityLabel={t("alarmLabel") || "Alarm label"}
+                />
+                {alarmLabel && alarmLabel.trim() && (
+                  <TouchableOpacity
+                    style={styles.removeLabelButton}
+                    onPress={onRemoveLabel}
+                    accessibilityLabel={t("removeLabel") || "Remove label"}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.removeLabelButtonText}>×</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          </View>
+
           {/* Sound Selection Section */}
           <View style={styles.section}>
             <TouchableOpacity
@@ -173,7 +206,7 @@ const ControlsBottomSheet = ({
                 <Text style={styles.controlButtonSubtitle}>Repeat</Text>
               </View>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                {" "}
+            
                 <Text style={styles.controlButtonSubtitle}>
                   {repeatSummary || "Once"}
                 </Text>
@@ -321,6 +354,17 @@ const styles = StyleSheet.create({
     ...TEXT_STYLES.closeButtonText,
     color: "#007AFF",
   },
+  testButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: "#FF6B6B",
+  },
+  testButtonText: {
+    ...TEXT_STYLES.closeButtonText,
+    color: "#FFFFFF",
+    fontWeight: "bold",
+  },
   saveButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -356,7 +400,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   section: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   sectionTitle: {
     ...TEXT_STYLES.sectionTitle,
@@ -419,7 +463,10 @@ const styles = StyleSheet.create({
     ...TEXT_STYLES.controlText,
     color: "#1a1a1a",
   },
-
+  controlButtonSubtitle: {
+    ...TEXT_STYLES.controlText,
+    color: "#1a1a1a",
+  },
   controlButtonTextContainer: {
     flex: 1,
     alignItems: "flex-start",
@@ -428,6 +475,54 @@ const styles = StyleSheet.create({
     ...TEXT_STYLES.buttonText,
     color: "#8e8e93",
     marginLeft: 8,
+  },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e8e8e8",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+  labelInput: {
+    flex: 1,
+    ...TEXT_STYLES.controlText,
+    color: "#1a1a1a",
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    marginRight: 8,
+    textAlign: "right",
+  },
+  labelInputInline: {
+    ...TEXT_STYLES.controlText,
+    color: "#1a1a1a",
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    marginRight: 8,
+    textAlign: "right",
+    minWidth: 80,
+  },
+  removeLabelButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#8e8e93",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 8,
+  },
+  removeLabelButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "bold",
+    lineHeight: 16,
   },
 });
 

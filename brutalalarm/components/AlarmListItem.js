@@ -25,6 +25,7 @@ export default function AlarmListItem({
   soundName,
   onPress,
   repeatDays = [],
+  label,
 }) {
   return (
     <View style={styles.container}>
@@ -52,7 +53,9 @@ export default function AlarmListItem({
         <View style={styles.itemRow}>
           <View style={styles.leftColumn}>
             <Text style={styles.timeText}>{formatTime24(time)}</Text>
-            <Text style={styles.subtitleText}>{soundName || "Alarm"}</Text>
+            <Text style={styles.subtitleText}>
+              {label && soundName ? `${label} • ${soundName}` : (label || soundName || "Alarm")}
+            </Text>
           </View>
           <Switch
             value={isEnabled}
@@ -83,6 +86,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   daysRow: {
+    width: "70%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

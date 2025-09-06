@@ -4,17 +4,20 @@ import * as FileSystem from 'expo-file-system';
 import { Audio } from 'expo-av';
 import { Buffer } from "buffer";
 
-// Your ElevenLabs API key - use environment variable for security
-const ELEVEN_LABS_API_KEY = process.env.EXPO_PUBLIC_ELEVEN_LABS_API_KEY || "sk_c601097f4b77f5dac6895da9548437e23518baf804e17298";
+// Your ElevenLabs API key - check environment variable and app config
+import Constants from 'expo-constants';
+const ELEVEN_LABS_API_KEY = process.env.EXPO_PUBLIC_ELEVEN_LABS_API_KEY || Constants.expoConfig?.extra?.elevenLabsApiKey || null;
 
 // Character voices with different personalities
+// Note: These voice IDs need to be updated with your actual ElevenLabs voice IDs
+// Go to https://elevenlabs.io/app/voice-library to get your voice IDs
 export const VOICES = {
-  navySeal: "pNInz6obpgDQGcFmaJgB",        // Adam - deep, commanding voice
-  yogaInstructor: "EXAVITQu4vr4xnSDxMaL",  // Bella - calm, soothing voice
-  drillSergeant: "VR6AewLTigWG4xSOukaG",   // Antoni - intense, aggressive voice
-  motivationalCoach: "TX3LPaxmHKxFdv7VOQHJ", // Elli - energetic, inspiring voice
-  gentle: "AZnzlk1XvdvUeBnXmlld",          // Domi - soft, gentle voice
-  energetic: "21m00Tcm4TlvDq8ikWAM",       // Rachel - high energy voice
+  navySeal: "21m00Tcm4TlvDq8ikWAM",        // Rachel - default voice (update with your voice ID)
+  yogaInstructor: "21m00Tcm4TlvDq8ikWAM",  // Rachel - default voice (update with your voice ID)
+  drillSergeant: "21m00Tcm4TlvDq8ikWAM",   // Rachel - default voice (update with your voice ID)
+  motivationalCoach: "21m00Tcm4TlvDq8ikWAM", // Rachel - default voice (update with your voice ID)
+  gentle: "21m00Tcm4TlvDq8ikWAM",          // Rachel - default voice (update with your voice ID)
+  energetic: "21m00Tcm4TlvDq8ikWAM",       // Rachel - default voice (update with your voice ID)
 };
 
 // Character-specific wake-up messages
@@ -83,8 +86,8 @@ export async function generateVoice(text, voiceId = VOICES.navySeal) {
     if (!text || text.trim() === "") return;
 
     // Check if API key is available
-    if (!ELEVEN_LABS_API_KEY || ELEVEN_LABS_API_KEY === "your_api_key_here") {
-      throw new Error("ElevenLabs API key is not configured. Please set EXPO_PUBLIC_ELEVEN_LABS_API_KEY environment variable.");
+    if (!ELEVEN_LABS_API_KEY || ELEVEN_LABS_API_KEY === "your_elevenlabs_api_key_here") {
+      throw new Error("ElevenLabs API key is not configured. Please:\n1. Get your API key from https://elevenlabs.io/app/settings/api-keys\n2. Replace 'your_elevenlabs_api_key_here' in app.json with your actual API key\n3. Or set EXPO_PUBLIC_ELEVEN_LABS_API_KEY in a .env file");
     }
 
     // If voiceId is a character name, get the actual voice ID
@@ -129,6 +132,9 @@ export async function generateVoice(text, voiceId = VOICES.navySeal) {
     } else if (error.response?.status === 429) {
       console.error("ElevenLabs API Rate Limit Error (429):", error.response.data);
       throw new Error("ElevenLabs API rate limit exceeded. Please try again later.");
+    } else if (error.response?.status === 404) {
+      console.error("ElevenLabs API Not Found Error (404):", error.response.data);
+      throw new Error("Voice ID not found. The selected voice may not exist or the API key may be invalid. Please check your ElevenLabs account and voice IDs.");
     } else if (error.response?.status === 422) {
       console.error("ElevenLabs API Validation Error (422):", error.response.data);
       throw new Error("Invalid request data sent to ElevenLabs API.");
@@ -176,8 +182,8 @@ export async function generateAndSaveVoice(text, voiceId = VOICES.navySeal, reco
     if (!recordingName || recordingName.trim() === "") return null;
 
     // Check if API key is available
-    if (!ELEVEN_LABS_API_KEY || ELEVEN_LABS_API_KEY === "your_api_key_here") {
-      throw new Error("ElevenLabs API key is not configured. Please set EXPO_PUBLIC_ELEVEN_LABS_API_KEY environment variable.");
+    if (!ELEVEN_LABS_API_KEY || ELEVEN_LABS_API_KEY === "your_elevenlabs_api_key_here") {
+      throw new Error("ElevenLabs API key is not configured. Please:\n1. Get your API key from https://elevenlabs.io/app/settings/api-keys\n2. Replace 'your_elevenlabs_api_key_here' in app.json with your actual API key\n3. Or set EXPO_PUBLIC_ELEVEN_LABS_API_KEY in a .env file");
     }
 
     // If voiceId is a character name, get the actual voice ID
